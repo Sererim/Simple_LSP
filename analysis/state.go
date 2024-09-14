@@ -3,6 +3,7 @@ package analysis
 import (
 	"fmt"
 	"simple_lsp/lsp"
+	"strings"
 )
 
 type State struct {
@@ -58,6 +59,51 @@ func (s *State) Definition(
 					Character: 0,
 				},
 			},
+		},
+	}
+}
+
+func (s *State) TextDocumentCodeAction(id int, uri string) lsp.TextDocumentCodeActionResponse {
+	text := s.Documents[uri]
+
+	actions := []lsp.CodeAction{}
+	for row, line := range strings.Split(text, "\n") {
+		idx := strings.Index(line, "Vim")
+		if idx >= 0 {
+			replace_change := map[string][]lsp.TextEdit{}
+			replace_change[uri] = []lsp.TextEdit{
+				{
+					Range:   LineRange(row, idx, idx+len("Vim")),
+					NewText: "VS Code",
+				},
+			}
+			actions = append(actions, lsp.CodeAction{
+				Title: "Replace V*m with a superior editor.",
+				Edit:  &lsp.WorkSpaceEdit{Changes: replace_change},
+			})
+		}
+	}
+
+	response := lsp.TextDocumentCodeActionResponse{
+		Response: lsp.Response{
+			RPC: "2.0",
+			ID:  &id,
+		},
+		Result: actions,
+	}
+
+	return response
+}
+
+func LineRange(line, start, end int) lsp.Range {
+	return lsp.Range{
+		Start: lsp.Position{
+			Line:      line,
+			Character: 0,
+		},
+		End: lsp.Position{
+			Line:      line,
+			Character: 0,
 		},
 	}
 }

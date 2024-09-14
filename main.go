@@ -85,7 +85,7 @@ func handleMessage(logger *log.Logger, writer io.Writer,
 	case "textDocument/hover":
 		var request lsp.HoverRequest
 		if err := json.Unmarshal(contents, &request); err != nil {
-			logger.Printf("textDocument/hover: %s", err)
+			logger.Printf("textDocument/hover: %s\n", err)
 			return
 		}
 
@@ -96,12 +96,23 @@ func handleMessage(logger *log.Logger, writer io.Writer,
 	case "textDocument/definition":
 		var request lsp.DefinitionRequest
 		if err := json.Unmarshal(contents, &request); err != nil {
-			logger.Printf("textDocument/definition: %s", err)
+			logger.Printf("textDocument/definition: %s\n", err)
 			return
 		}
 
 		response := state.Definition(
 			request.ID, request.Params.TextDocument.URI, request.Params.Position)
+
+		writeResponse(writer, response)
+
+	case "textDocument/codeAction":
+		var request lsp.CodeActionRequest
+		if err := json.Unmarshal(contents, &request); err != nil {
+			logger.Printf("textDocument/codeAction %s\n", err)
+			return
+		}
+
+		response := state.TextDocumentCodeAction(request.ID, request.Params.TextDocument.URI)
 
 		writeResponse(writer, response)
 

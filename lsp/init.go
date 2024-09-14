@@ -26,9 +26,11 @@ type InitResult struct {
 }
 
 type ServerCpbl struct {
-	TextDocSync        int  `json:"textDocumentSync"`
+	TextDocSync int `json:"textDocumentSync"`
+
 	HoverProvider      bool `json:"hoverProvider"`
 	DefinitionProvider bool `json:"definitionProvider"`
+	CodeActionProvider bool `json:"codeActionProvider"`
 }
 
 type ServerInfo struct {
