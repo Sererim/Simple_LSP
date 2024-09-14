@@ -18,23 +18,51 @@ func EncodeMessage(msg any) string {
 		"Content-Length: %d\r\n\r\n%s", len(content), content)
 }
 
-func DecodeMessage(msg []byte) (int, error) {
+type BaseMessage struct {
+	Method string `json:"method"`
+}
+
+func DecodeMessage(msg []byte) (string, []byte, error) {
 	header, content, found := bytes.
 		Cut(msg, []byte{'\r', '\n', '\r', '\n'})
 	if !found {
-		return 0, errors.New("ERROR: no separator found!")
+		return "", nil, errors.New("ERROR: no separator found")
 	}
 
-	// Content-Length: <NUMBER>
+	content_length_bytes := header[len("Content-Length: "):]
+
+	content_length, err := strconv.Atoi(string(content_length_bytes))
+	if err != nil {
+		return "", nil, err
+	}
+
+	var base_msg BaseMessage
+	if err := json.
+		Unmarshal(content[:content_length], &base_msg); err != nil {
+		return "", nil, err
+	}
+
+	return base_msg.Method, content[:content_length], nil
+}
+
+func Split(data []byte, _ bool) (advance int, token []byte, err error) {
+
+	header, content, found := bytes.Cut(data, []byte{'\r', '\n', '\r', '\n'})
+	if !found {
+		return 0, nil, nil
+	}
 
 	content_length_bytes := header[len("Content-Length: "):]
 	content_length, err := strconv.Atoi(string(content_length_bytes))
 	if err != nil {
-		return 0, err
+		return 0, nil, err
 	}
 
-	// TODO: finish work with content.
-	_ = content
+	if len(content) < content_length {
+		return 0, nil, nil
+	}
 
-	return content_length, nil
+	total_length := len(header) + 4 + content_length
+
+	return total_length, data[:total_length], nil
 }

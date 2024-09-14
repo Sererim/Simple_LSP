@@ -1,0 +1,1 @@
+[simple_lsp] 2024/09/14 17:00:52 main.go:17: Started.
