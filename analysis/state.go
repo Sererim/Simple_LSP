@@ -14,12 +14,30 @@ func NewState() State {
 	return State{Documents: map[string]string{}}
 }
 
-func (s *State) OpenDocument(uri, text string) {
-	s.Documents[uri] = text
+func getDiangostics(text string) []lsp.Diagnostics {
+	diagnostics := []lsp.Diagnostics{}
+	for row, line := range strings.Split(text, "\n") {
+		if strings.Contains(line, "Neovim") {
+			idx := strings.Index(line, "Neovim")
+			diagnostics = append(diagnostics, lsp.Diagnostics{
+				Range:    LineRange(row, idx, idx+len("Neovim")),
+				Severity: 1,
+				Source:   "Touching grass",
+				Message:  "HUH ?",
+			})
+		}
+	}
 }
 
-func (s *State) UpdateDocument(uri, text string) {
+func (s *State) OpenDocument(uri, text string) []lsp.Diagnostics {
 	s.Documents[uri] = text
+	return []lsp.Diagnostics{}
+}
+
+func (s *State) UpdateDocument(uri, text string) []lsp.Diagnostics {
+	s.Documents[uri] = text
+
+	return []lsp.Diagnostics{}
 }
 
 func (s *State) Hover(
