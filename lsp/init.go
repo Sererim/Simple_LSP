@@ -28,9 +28,10 @@ type InitResult struct {
 type ServerCpbl struct {
 	TextDocSync int `json:"textDocumentSync"`
 
-	HoverProvider      bool `json:"hoverProvider"`
-	DefinitionProvider bool `json:"definitionProvider"`
-	CodeActionProvider bool `json:"codeActionProvider"`
+	HoverProvider      bool           `json:"hoverProvider"`
+	DefinitionProvider bool           `json:"definitionProvider"`
+	CodeActionProvider bool           `json:"codeActionProvider"`
+	CompletionProvider map[string]any `json:"completionProvider"`
 }
 
 type ServerInfo struct {
@@ -49,6 +50,8 @@ func NewInitResponse(id int) InitResponse {
 				TextDocSync:        1,
 				HoverProvider:      true,
 				DefinitionProvider: true,
+				CodeActionProvider: true,
+				CompletionProvider: map[string]any{},
 			},
 			ServerInfo: ServerInfo{
 				Name:    "simple_lsp",
